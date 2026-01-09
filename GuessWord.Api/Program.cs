@@ -85,5 +85,10 @@ app.MapDelete("/user", async (GameService service, [FromQuery] string user) =>
 
 app.Run();
 
+// !!!нужен для WebApplicationFactory!!!
+namespace GuessWord.Api
+{
+    public partial class Program { } 
+}
 
 

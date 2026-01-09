@@ -4,13 +4,20 @@ using System.Net.Http;               // работа с HttpClient
 using System.Text.RegularExpressions;// регулярные выражения для извлечения ID
 using System.Threading.Tasks;        // поддержка async/await
 using NUnit.Framework;               // NUnit — фреймворк для тестов
+using Microsoft.AspNetCore.Mvc.Testing; // новый пакет для запуска API внутри тестов
 
 namespace WordGameTests
 {
     [TestFixture]
     public class ApiTests
     {
+        // --- СТАРЫЙ ВАРИАНТ ---
+        // private HttpClient _client = default!;
+
+        // --- НОВЫЙ ВАРИАНТ ---
+        private WebApplicationFactory<GuessWord.Api.Program> _factory = default!;
         private HttpClient _client = default!;
+
         private const string TestUser = "testuser";
         private const string TestUser1 = "testuser1";
         private const string TestUser2 = "testuser2";
@@ -19,10 +26,15 @@ namespace WordGameTests
         [SetUp]
         public async Task SetUp()
         {
-            _client = new HttpClient
-            {
-                BaseAddress = new Uri("http://localhost:5114") // выстави реальный порт твоего API
-            };
+            // --- СТАРЫЙ ВАРИАНТ ---
+            // _client = new HttpClient
+            // {
+            //     BaseAddress = new Uri("http://localhost:5114") // выстави реальный порт твоего API
+            // };
+
+            // --- НОВЫЙ ВАРИАНТ ---
+            _factory = new WebApplicationFactory<GuessWord.Api.Program>();
+            _client = _factory.CreateClient();
 
             // чистим всех тестовых пользователей до теста
             await _client.DeleteAsync($"/user?user={TestUser}");
@@ -34,12 +46,16 @@ namespace WordGameTests
         [TearDown]
         public async Task TearDown()
         {
-            // чистим всех тестовых пользователей после теста
+            // --- СТАРЫЙ ВАРИАНТ ---
+            // _client.Dispose();
+
+            // --- НОВЫЙ ВАРИАНТ ---
             await _client.DeleteAsync($"/user?user={TestUser}");
             await _client.DeleteAsync($"/user?user={TestUser1}");
             await _client.DeleteAsync($"/user?user={TestUser2}");
 
             _client.Dispose();
+            _factory.Dispose();
         }
 
         // --- Тест 1: проверяем эндпоинт /start ---
@@ -76,9 +92,7 @@ namespace WordGameTests
         [Test]
         public async Task Statistics_ReturnsList()
         {
-            // создаём игру, чтобы статистика не была пустой
-            var startResponse = await _client.PostAsync($"/start?user={TestUser}", null);
-            var _ = await startResponse.Content.ReadAsStringAsync();
+            await _client.PostAsync($"/start?user={TestUser}", null);
 
             var response = await _client.GetAsync("/statistics");
             var content = await response.Content.ReadAsStringAsync();
@@ -93,12 +107,10 @@ namespace WordGameTests
         [Test]
         public async Task DeleteUser_RemovesOnlySpecifiedUser()
         {
-            // 1) создаём двух пользователей
             var r1 = await _client.PostAsync($"/start?user={TestUser1}", null);
             var r2 = await _client.PostAsync($"/start?user={TestUser2}", null);
             Assert.That(r1.IsSuccessStatusCode && r2.IsSuccessStatusCode, Is.True);
 
-            // 2) проверяем, что оба есть в статистике
             var statsBefore = await _client.GetAsync("/statistics");
             var statsContentBefore = await statsBefore.Content.ReadAsStringAsync();
             TestContext.WriteLine("Статистика до удаления: " + statsContentBefore);
@@ -106,13 +118,11 @@ namespace WordGameTests
             Assert.That(statsContentBefore, Does.Contain(TestUser1));
             Assert.That(statsContentBefore, Does.Contain(TestUser2));
 
-            // 3) удаляем только первого
             var deleteResponse = await _client.DeleteAsync($"/user?user={TestUser1}");
             var deleteContent = await deleteResponse.Content.ReadAsStringAsync();
             TestContext.WriteLine("Удаление: " + deleteContent);
             Assert.That(deleteResponse.IsSuccessStatusCode, Is.True);
 
-            // 4) проверяем, что остался только второй
             var statsAfter = await _client.GetAsync("/statistics");
             var statsContentAfter = await statsAfter.Content.ReadAsStringAsync();
             TestContext.WriteLine("Статистика после удаления: " + statsContentAfter);
@@ -132,4 +142,5 @@ namespace WordGameTests
         }
     }
 }
+
 
