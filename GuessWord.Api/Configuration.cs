@@ -3,5 +3,5 @@
     public const string DbDirectory = "D:\\sql\\";
     public const string DbFileName = "word_guess.db";
     public const string DbPath = $"{DbDirectory}{DbFileName}";
-    public const string WordListPath = "D:\\sql\\words.txt";
+    public const string WordListPath = "words.txt";
 }
