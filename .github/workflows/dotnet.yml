@@ -24,5 +24,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
+    - name: Test RestSharp
       run: dotnet test --no-build --verbosity normal GuessWord.Tests.RestSharp/GuessWord.Tests.RestSharp.csproj
+    - name: Test HttpClient
+      run: dotnet test --no-build --verbosity normal GuessWord.Tests.HttpClient/GuessWord.Tests.HttpClient.csproj
