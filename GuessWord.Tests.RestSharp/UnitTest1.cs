@@ -1,22 +1,22 @@
-/// Подключаем пространства имён .NET
+/// РџРѕРґРєР»СЋС‡Р°РµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РёРјС‘РЅ .NET
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
-// --- СТАРЫЙ ВАРИАНТ ---
-// using System.Net.Http;               // работа с HttpClient
-// --- НОВЫЙ ВАРИАНТ ---
-using RestSharp; // RestSharp — библиотека для HTTP-запросов
-using Microsoft.AspNetCore.Mvc.Testing; // для запуска API внутри тестов
+// --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
+// using System.Net.Http;               // СЂР°Р±РѕС‚Р° СЃ HttpClient
+// --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
+using RestSharp; // RestSharp вЂ” Р±РёР±Р»РёРѕС‚РµРєР° РґР»СЏ HTTP-Р·Р°РїСЂРѕСЃРѕРІ
+using Microsoft.AspNetCore.Mvc.Testing; // РґР»СЏ Р·Р°РїСѓСЃРєР° API РІРЅСѓС‚СЂРё С‚РµСЃС‚РѕРІ
 
 namespace WordGameTests
 {
     [TestFixture]
     public class ApiTests
     {
-        // --- СТАРЫЙ ВАРИАНТ ---
+        // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
         // private HttpClient _client = default!;
-        // --- НОВЫЙ ВАРИАНТ ---
+        // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
         private WebApplicationFactory<GuessWord.Api.Program> _factory = default!;
         private RestClient _client = default!;
 
@@ -27,14 +27,14 @@ namespace WordGameTests
         [SetUp]
         public async Task SetUp()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
+            // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
             // _client = new HttpClient { BaseAddress = new Uri("http://localhost:5114") };
 
-            // --- НОВЫЙ ВАРИАНТ ---
+            // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
             _factory = new WebApplicationFactory<GuessWord.Api.Program>();
             _client = new RestClient(_factory.CreateClient());
 
-            // чистим всех тестовых пользователей до теста
+            // С‡РёСЃС‚РёРј РІСЃРµС… С‚РµСЃС‚РѕРІС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РґРѕ С‚РµСЃС‚Р°
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser1}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser2}"));
@@ -43,10 +43,10 @@ namespace WordGameTests
         [TearDown]
         public async Task TearDown()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
+            // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
             // _client.Dispose();
 
-            // --- НОВЫЙ ВАРИАНТ ---
+            // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser1}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser2}"));
@@ -55,7 +55,7 @@ namespace WordGameTests
             _factory.Dispose();
         }
 
-        // --- Тест 1: проверяем эндпоинт /start ---
+        // --- РўРµСЃС‚ 1: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /start ---
         [Test]
         public async Task StartGame_ReturnsSessionId()
         {
@@ -64,13 +64,13 @@ namespace WordGameTests
 
             var response = await _client.ExecuteAsync(request);
 
-            TestContext.WriteLine("Ответ сервера: " + response.Content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + response.Content);
 
             Assert.That(response.IsSuccessful, Is.True);
-            Assert.That(response.Content, Does.Contain("ID сессии"));
+            Assert.That(response.Content, Does.Contain("ID СЃРµСЃСЃРёРё"));
         }
 
-        // --- Тест 2: проверяем эндпоинт /guess ---
+        // --- РўРµСЃС‚ 2: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /guess ---
         [Test]
         public async Task GuessLetter_ReturnsResult()
         {
@@ -85,13 +85,13 @@ namespace WordGameTests
 
             var guessResponse = await _client.ExecuteAsync(guessRequest);
 
-            TestContext.WriteLine("Ответ сервера: " + guessResponse.Content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + guessResponse.Content);
 
             Assert.That(guessResponse.IsSuccessful, Is.True);
-            Assert.That(guessResponse.Content, Does.Contain("Буква").Or.Contain("Игра уже завершена"));
+            Assert.That(guessResponse.Content, Does.Contain("Р‘СѓРєРІР°").Or.Contain("РРіСЂР° СѓР¶Рµ Р·Р°РІРµСЂС€РµРЅР°"));
         }
 
-        // --- Тест 3: проверяем эндпоинт /statistics ---
+        // --- РўРµСЃС‚ 3: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /statistics ---
         [Test]
         public async Task Statistics_ReturnsList()
         {
@@ -102,13 +102,13 @@ namespace WordGameTests
             var statsRequest = new RestRequest("/statistics", Method.Get);
             var statsResponse = await _client.ExecuteAsync(statsRequest);
 
-            TestContext.WriteLine("Ответ сервера: " + statsResponse.Content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + statsResponse.Content);
 
             Assert.That(statsResponse.IsSuccessful, Is.True);
-            Assert.That(statsResponse.Content, Does.Contain("Игра"));
+            Assert.That(statsResponse.Content, Does.Contain("РРіСЂР°"));
         }
 
-        // --- Тест 4: удаление только одного пользователя из двух ---
+        // --- РўРµСЃС‚ 4: СѓРґР°Р»РµРЅРёРµ С‚РѕР»СЊРєРѕ РѕРґРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· РґРІСѓС… ---
         [Test]
         public async Task DeleteUser_RemovesOnlySpecifiedUser()
         {
@@ -117,29 +117,29 @@ namespace WordGameTests
             Assert.That(r1.IsSuccessful && r2.IsSuccessful, Is.True);
 
             var statsBefore = await _client.ExecuteAsync(new RestRequest("/statistics", Method.Get));
-            TestContext.WriteLine("Статистика до удаления: " + statsBefore.Content);
+            TestContext.WriteLine("РЎС‚Р°С‚РёСЃС‚РёРєР° РґРѕ СѓРґР°Р»РµРЅРёСЏ: " + statsBefore.Content);
             Assert.That(statsBefore.Content, Does.Contain(TestUser1));
             Assert.That(statsBefore.Content, Does.Contain(TestUser2));
 
             var deleteResponse = await _client.ExecuteAsync(new RestRequest("/user", Method.Delete).AddQueryParameter("user", TestUser1));
-            TestContext.WriteLine("Удаление: " + deleteResponse.Content);
+            TestContext.WriteLine("РЈРґР°Р»РµРЅРёРµ: " + deleteResponse.Content);
             Assert.That(deleteResponse.IsSuccessful, Is.True);
 
             var statsAfter = await _client.ExecuteAsync(new RestRequest("/statistics", Method.Get));
-            TestContext.WriteLine("Статистика после удаления: " + statsAfter.Content);
+            TestContext.WriteLine("РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ: " + statsAfter.Content);
             Assert.That(statsAfter.Content, Does.Not.Contain(TestUser1));
             Assert.That(statsAfter.Content, Does.Contain(TestUser2));
         }
 
-        // --- Вспомогательный метод ---
+        // --- Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ ---
         private long ExtractId(string? content)
         {
             if (string.IsNullOrEmpty(content))
-                throw new InvalidOperationException("Ответ пустой, ID не найден");
+                throw new InvalidOperationException("РћС‚РІРµС‚ РїСѓСЃС‚РѕР№, ID РЅРµ РЅР°Р№РґРµРЅ");
 
             var matches = Regex.Matches(content, @"\d+");
             if (matches.Count == 0)
-                throw new InvalidOperationException("ID не найден: " + content);
+                throw new InvalidOperationException("ID РЅРµ РЅР°Р№РґРµРЅ: " + content);
 
             return long.Parse(matches[matches.Count - 1].Value);
         }

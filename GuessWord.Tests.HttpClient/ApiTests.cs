@@ -1,20 +1,20 @@
-// Подключаем пространства имён .NET
-using System;                        // базовые типы и исключения
-using System.Net.Http;               // работа с HttpClient
-using System.Text.RegularExpressions;// регулярные выражения для извлечения ID
-using System.Threading.Tasks;        // поддержка async/await
-using NUnit.Framework;               // NUnit — фреймворк для тестов
-using Microsoft.AspNetCore.Mvc.Testing; // новый пакет для запуска API внутри тестов
+// РџРѕРґРєР»СЋС‡Р°РµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РёРјС‘РЅ .NET
+using System;                        // Р±Р°Р·РѕРІС‹Рµ С‚РёРїС‹ Рё РёСЃРєР»СЋС‡РµРЅРёСЏ
+using System.Net.Http;               // СЂР°Р±РѕС‚Р° СЃ HttpClient
+using System.Text.RegularExpressions;// СЂРµРіСѓР»СЏСЂРЅС‹Рµ РІС‹СЂР°Р¶РµРЅРёСЏ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ ID
+using System.Threading.Tasks;        // РїРѕРґРґРµСЂР¶РєР° async/await
+using NUnit.Framework;               // NUnit вЂ” С„СЂРµР№РјРІРѕСЂРє РґР»СЏ С‚РµСЃС‚РѕРІ
+using Microsoft.AspNetCore.Mvc.Testing; // РЅРѕРІС‹Р№ РїР°РєРµС‚ РґР»СЏ Р·Р°РїСѓСЃРєР° API РІРЅСѓС‚СЂРё С‚РµСЃС‚РѕРІ
 
 namespace WordGameTests
 {
     [TestFixture]
     public class ApiTests
     {
-        // --- СТАРЫЙ ВАРИАНТ ---
+        // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
         // private HttpClient _client = default!;
 
-        // --- НОВЫЙ ВАРИАНТ ---
+        // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
         private WebApplicationFactory<GuessWord.Api.Program> _factory = default!;
         private HttpClient _client = default!;
 
@@ -22,34 +22,34 @@ namespace WordGameTests
         private const string TestUser1 = "testuser1";
         private const string TestUser2 = "testuser2";
 
-        // Очистка перед каждым тестом
+        // РћС‡РёСЃС‚РєР° РїРµСЂРµРґ РєР°Р¶РґС‹Рј С‚РµСЃС‚РѕРј
         [SetUp]
         public async Task SetUp()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
+            // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
             // _client = new HttpClient
             // {
-            //     BaseAddress = new Uri("http://localhost:5114") // выстави реальный порт твоего API
+            //     BaseAddress = new Uri("http://localhost:5114") // РІС‹СЃС‚Р°РІРё СЂРµР°Р»СЊРЅС‹Р№ РїРѕСЂС‚ С‚РІРѕРµРіРѕ API
             // };
 
-            // --- НОВЫЙ ВАРИАНТ ---
+            // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
             _factory = new WebApplicationFactory<GuessWord.Api.Program>();
             _client = _factory.CreateClient();
 
-            // чистим всех тестовых пользователей до теста
+            // С‡РёСЃС‚РёРј РІСЃРµС… С‚РµСЃС‚РѕРІС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РґРѕ С‚РµСЃС‚Р°
             await _client.DeleteAsync($"/user?user={TestUser}");
             await _client.DeleteAsync($"/user?user={TestUser1}");
             await _client.DeleteAsync($"/user?user={TestUser2}");
         }
 
-        // Очистка после каждого теста
+        // РћС‡РёСЃС‚РєР° РїРѕСЃР»Рµ РєР°Р¶РґРѕРіРѕ С‚РµСЃС‚Р°
         [TearDown]
         public async Task TearDown()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
+            // --- РЎРўРђР Р«Р™ Р’РђР РРђРќРў ---
             // _client.Dispose();
 
-            // --- НОВЫЙ ВАРИАНТ ---
+            // --- РќРћР’Р«Р™ Р’РђР РРђРќРў ---
             await _client.DeleteAsync($"/user?user={TestUser}");
             await _client.DeleteAsync($"/user?user={TestUser1}");
             await _client.DeleteAsync($"/user?user={TestUser2}");
@@ -58,20 +58,20 @@ namespace WordGameTests
             _factory.Dispose();
         }
 
-        // --- Тест 1: проверяем эндпоинт /start ---
+        // --- РўРµСЃС‚ 1: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /start ---
         [Test]
         public async Task StartGame_ReturnsSessionId()
         {
             var response = await _client.PostAsync($"/start?user={TestUser}", null);
             var content = await response.Content.ReadAsStringAsync();
 
-            TestContext.WriteLine("Ответ сервера: " + content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + content);
 
             Assert.That(response.IsSuccessStatusCode, Is.True);
-            Assert.That(content, Does.Contain("ID сессии"));
+            Assert.That(content, Does.Contain("ID СЃРµСЃСЃРёРё"));
         }
 
-        // --- Тест 2: проверяем эндпоинт /guess ---
+        // --- РўРµСЃС‚ 2: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /guess ---
         [Test]
         public async Task GuessLetter_ReturnsResult()
         {
@@ -82,13 +82,13 @@ namespace WordGameTests
             var response = await _client.PostAsync($"/guess?letter=A&id={id}", null);
             var content = await response.Content.ReadAsStringAsync();
 
-            TestContext.WriteLine("Ответ сервера: " + content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + content);
 
             Assert.That(response.IsSuccessStatusCode, Is.True);
-            Assert.That(content, Does.Contain("Буква").Or.Contain("Игра уже завершена"));
+            Assert.That(content, Does.Contain("Р‘СѓРєРІР°").Or.Contain("РРіСЂР° СѓР¶Рµ Р·Р°РІРµСЂС€РµРЅР°"));
         }
 
-        // --- Тест 3: проверяем эндпоинт /statistics ---
+        // --- РўРµСЃС‚ 3: РїСЂРѕРІРµСЂСЏРµРј СЌРЅРґРїРѕРёРЅС‚ /statistics ---
         [Test]
         public async Task Statistics_ReturnsList()
         {
@@ -97,13 +97,13 @@ namespace WordGameTests
             var response = await _client.GetAsync("/statistics");
             var content = await response.Content.ReadAsStringAsync();
 
-            TestContext.WriteLine("Ответ сервера: " + content);
+            TestContext.WriteLine("РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°: " + content);
 
             Assert.That(response.IsSuccessStatusCode, Is.True);
-            Assert.That(content, Does.Contain("Игра"));
+            Assert.That(content, Does.Contain("РРіСЂР°"));
         }
 
-        // --- Тест 4: удаление только одного пользователя из двух ---
+        // --- РўРµСЃС‚ 4: СѓРґР°Р»РµРЅРёРµ С‚РѕР»СЊРєРѕ РѕРґРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· РґРІСѓС… ---
         [Test]
         public async Task DeleteUser_RemovesOnlySpecifiedUser()
         {
@@ -113,30 +113,30 @@ namespace WordGameTests
 
             var statsBefore = await _client.GetAsync("/statistics");
             var statsContentBefore = await statsBefore.Content.ReadAsStringAsync();
-            TestContext.WriteLine("Статистика до удаления: " + statsContentBefore);
+            TestContext.WriteLine("РЎС‚Р°С‚РёСЃС‚РёРєР° РґРѕ СѓРґР°Р»РµРЅРёСЏ: " + statsContentBefore);
 
             Assert.That(statsContentBefore, Does.Contain(TestUser1));
             Assert.That(statsContentBefore, Does.Contain(TestUser2));
 
             var deleteResponse = await _client.DeleteAsync($"/user?user={TestUser1}");
             var deleteContent = await deleteResponse.Content.ReadAsStringAsync();
-            TestContext.WriteLine("Удаление: " + deleteContent);
+            TestContext.WriteLine("РЈРґР°Р»РµРЅРёРµ: " + deleteContent);
             Assert.That(deleteResponse.IsSuccessStatusCode, Is.True);
 
             var statsAfter = await _client.GetAsync("/statistics");
             var statsContentAfter = await statsAfter.Content.ReadAsStringAsync();
-            TestContext.WriteLine("Статистика после удаления: " + statsContentAfter);
+            TestContext.WriteLine("РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ: " + statsContentAfter);
 
             Assert.That(statsContentAfter, Does.Not.Contain(TestUser1));
             Assert.That(statsContentAfter, Does.Contain(TestUser2));
         }
 
-        // --- Вспомогательный метод: извлекаем последний числовой ID из текста ---
+        // --- Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ: РёР·РІР»РµРєР°РµРј РїРѕСЃР»РµРґРЅРёР№ С‡РёСЃР»РѕРІРѕР№ ID РёР· С‚РµРєСЃС‚Р° ---
         private long ExtractId(string content)
         {
             var matches = Regex.Matches(content, @"\d+");
             if (matches.Count == 0)
-                throw new InvalidOperationException("ID не найден: " + content);
+                throw new InvalidOperationException("ID РЅРµ РЅР°Р№РґРµРЅ: " + content);
 
             return long.Parse(matches[matches.Count - 1].Value);
         }
