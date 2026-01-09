@@ -8,7 +8,7 @@ Directory.CreateDirectory(Configuration.DbDirectory);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Регистрация Swagger-сервисов
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ Swagger-СЃРµСЂРІРёСЃРѕРІ
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -16,66 +16,66 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "WordGame API",
         Version = "v1",
-        Description = "Минимальный API для игры в угадывание слов"
+        Description = "РњРёРЅРёРјР°Р»СЊРЅС‹Р№ API РґР»СЏ РёРіСЂС‹ РІ СѓРіР°РґС‹РІР°РЅРёРµ СЃР»РѕРІ"
     });
 });
 
-// Регистрация EF Core и сервисов
+// Р РµРіРёСЃС‚СЂР°С†РёСЏ EF Core Рё СЃРµСЂРІРёСЃРѕРІ
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite($"Data Source={Configuration.DbPath}"));
 builder.Services.AddScoped<GameService>();
 
 var app = builder.Build();
 
-// Инициализация базы данных при отсутствии файла
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С… РїСЂРё РѕС‚СЃСѓС‚СЃС‚РІРёРё С„Р°Р№Р»Р°
 using (var scope = app.Services.CreateScope())
 {
     var dbFile = Configuration.DbPath;
 
-    // Проверка: если файл базы не существует — создаём структуру
+    // РџСЂРѕРІРµСЂРєР°: РµСЃР»Рё С„Р°Р№Р» Р±Р°Р·С‹ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ вЂ” СЃРѕР·РґР°С‘Рј СЃС‚СЂСѓРєС‚СѓСЂСѓ
     if (!File.Exists(dbFile))
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Database.EnsureCreated(); // создаёт таблицы по моделям
+        db.Database.EnsureCreated(); // СЃРѕР·РґР°С‘С‚ С‚Р°Р±Р»РёС†С‹ РїРѕ РјРѕРґРµР»СЏРј
     }
 } 
 
-// Включение Swagger UI в режиме разработки
+// Р’РєР»СЋС‡РµРЅРёРµ Swagger UI РІ СЂРµР¶РёРјРµ СЂР°Р·СЂР°Р±РѕС‚РєРё
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Инициализация базы данных
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
 
-// Старт новой игры с указанием имени пользователя
+// РЎС‚Р°СЂС‚ РЅРѕРІРѕР№ РёРіСЂС‹ СЃ СѓРєР°Р·Р°РЅРёРµРј РёРјРµРЅРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 app.MapPost("/start", async (GameService service, [FromQuery] string user) =>
 {
     var id = await service.StartNewGameAsync(user);
-    return Results.Ok($"Новая игра начата. ID сессии: {id}");
+    return Results.Ok($"РќРѕРІР°СЏ РёРіСЂР° РЅР°С‡Р°С‚Р°. ID СЃРµСЃСЃРёРё: {id}");
 });
 
-// Попытка угадать букву
+// РџРѕРїС‹С‚РєР° СѓРіР°РґР°С‚СЊ Р±СѓРєРІСѓ
 app.MapPost("/guess", async (GameService service, [FromQuery] char letter, [FromQuery] long id) =>
 {
     var result = await service.GuessAsync(id, letter);
     return Results.Ok(result);
 });
 
-// Статистика по статусу и имени пользователя
+// РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ Рё РёРјРµРЅРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 app.MapGet("/statistics", async (GameService service, [FromQuery] string? status, [FromQuery] string? user) =>
 {
     var stats = await service.GetStatisticsAsync(status, user);
     return Results.Ok(stats);
 });
 
-// Удаление пользователя и всех его игр
+// РЈРґР°Р»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РІСЃРµС… РµРіРѕ РёРіСЂ
 app.MapDelete("/user", async (GameService service, [FromQuery] string user) =>
 {
     var result = await service.DeleteUserAsync(user);
@@ -85,7 +85,7 @@ app.MapDelete("/user", async (GameService service, [FromQuery] string user) =>
 
 app.Run();
 
-// !!!нужен для WebApplicationFactory!!!
+// !!!РЅСѓР¶РµРЅ РґР»СЏ WebApplicationFactory!!!
 namespace GuessWord.Api
 {
     public partial class Program { } 
