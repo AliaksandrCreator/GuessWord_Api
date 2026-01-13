@@ -6,7 +6,6 @@ public class GameService
 
     public GameService(AppDbContext db) => _db = db;
 
-    // Старт новой игры с учётом пользователя
     public async Task<long> StartNewGameAsync(string userName)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Name == userName);
@@ -35,7 +34,6 @@ public class GameService
         return session.Id;
     }
 
-    // Угадывание буквы
     public async Task<string> GuessAsync(long id, char letter)
     {
         var session = await _db.WordGame.FindAsync(id);
@@ -67,7 +65,6 @@ public class GameService
         return $"Буква: {upperLetter} → {result} Слово: {session.Masked} Осталось попыток: {session.AttemptsLeft}";
     }
 
-    // Статистика по статусу и пользователю
     public async Task<List<string>> GetStatisticsAsync(string? status = null, string? userName = null)
     {
         var query = _db.WordGame.Include(g => g.User).AsQueryable();
@@ -85,7 +82,6 @@ public class GameService
         ).ToList();
     }
 
-    // удаленние игр игрока
     public async Task<string> DeleteUserAsync(string userName)
     {
         var user = await _db.Users.Include(u => u.Games)

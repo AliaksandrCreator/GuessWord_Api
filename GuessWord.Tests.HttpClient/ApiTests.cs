@@ -1,20 +1,12 @@
-// Подключаем пространства имён .NET
-using System;                        // базовые типы и исключения
-using System.Net.Http;               // работа с HttpClient
-using System.Text.RegularExpressions;// регулярные выражения для извлечения ID
-using System.Threading.Tasks;        // поддержка async/await
-using NUnit.Framework;               // NUnit — фреймворк для тестов
-using Microsoft.AspNetCore.Mvc.Testing; // новый пакет для запуска API внутри тестов
+using NUnit.Framework;
+using Microsoft.AspNetCore.Mvc.Testing;
+using System.Text.RegularExpressions;
 
 namespace WordGameTests
 {
     [TestFixture]
     public class ApiTests
     {
-        // --- СТАРЫЙ ВАРИАНТ ---
-        // private HttpClient _client = default!;
-
-        // --- НОВЫЙ ВАРИАНТ ---
         private WebApplicationFactory<GuessWord.Api.Program> _factory = default!;
         private HttpClient _client = default!;
 
@@ -22,34 +14,20 @@ namespace WordGameTests
         private const string TestUser1 = "testuser1";
         private const string TestUser2 = "testuser2";
 
-        // Очистка перед каждым тестом
         [SetUp]
         public async Task SetUp()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
-            // _client = new HttpClient
-            // {
-            //     BaseAddress = new Uri("http://localhost:5114") // выстави реальный порт твоего API
-            // };
-
-            // --- НОВЫЙ ВАРИАНТ ---
             _factory = new WebApplicationFactory<GuessWord.Api.Program>();
             _client = _factory.CreateClient();
 
-            // чистим всех тестовых пользователей до теста
             await _client.DeleteAsync($"/user?user={TestUser}");
             await _client.DeleteAsync($"/user?user={TestUser1}");
             await _client.DeleteAsync($"/user?user={TestUser2}");
         }
 
-        // Очистка после каждого теста
         [TearDown]
         public async Task TearDown()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
-            // _client.Dispose();
-
-            // --- НОВЫЙ ВАРИАНТ ---
             await _client.DeleteAsync($"/user?user={TestUser}");
             await _client.DeleteAsync($"/user?user={TestUser1}");
             await _client.DeleteAsync($"/user?user={TestUser2}");
@@ -58,7 +36,6 @@ namespace WordGameTests
             _factory.Dispose();
         }
 
-        // --- Тест 1: проверяем эндпоинт /start ---
         [Test]
         public async Task StartGame_ReturnsSessionId()
         {
@@ -71,7 +48,6 @@ namespace WordGameTests
             Assert.That(content, Does.Contain("ID сессии"));
         }
 
-        // --- Тест 2: проверяем эндпоинт /guess ---
         [Test]
         public async Task GuessLetter_ReturnsResult()
         {
@@ -88,7 +64,6 @@ namespace WordGameTests
             Assert.That(content, Does.Contain("Буква").Or.Contain("Игра уже завершена"));
         }
 
-        // --- Тест 3: проверяем эндпоинт /statistics ---
         [Test]
         public async Task Statistics_ReturnsList()
         {
@@ -103,7 +78,6 @@ namespace WordGameTests
             Assert.That(content, Does.Contain("Игра"));
         }
 
-        // --- Тест 4: удаление только одного пользователя из двух ---
         [Test]
         public async Task DeleteUser_RemovesOnlySpecifiedUser()
         {
@@ -131,7 +105,6 @@ namespace WordGameTests
             Assert.That(statsContentAfter, Does.Contain(TestUser2));
         }
 
-        // --- Вспомогательный метод: извлекаем последний числовой ID из текста ---
         private long ExtractId(string content)
         {
             var matches = Regex.Matches(content, @"\d+");

@@ -1,22 +1,14 @@
-/// Подключаем пространства имён .NET
-using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
-// --- СТАРЫЙ ВАРИАНТ ---
-// using System.Net.Http;               // работа с HttpClient
-// --- НОВЫЙ ВАРИАНТ ---
-using RestSharp; // RestSharp — библиотека для HTTP-запросов
-using Microsoft.AspNetCore.Mvc.Testing; // для запуска API внутри тестов
+using RestSharp;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace WordGameTests
 {
     [TestFixture]
     public class ApiTests
     {
-        // --- СТАРЫЙ ВАРИАНТ ---
-        // private HttpClient _client = default!;
-        // --- НОВЫЙ ВАРИАНТ ---
         private WebApplicationFactory<GuessWord.Api.Program> _factory = default!;
         private RestClient _client = default!;
 
@@ -27,14 +19,9 @@ namespace WordGameTests
         [SetUp]
         public async Task SetUp()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
-            // _client = new HttpClient { BaseAddress = new Uri("http://localhost:5114") };
-
-            // --- НОВЫЙ ВАРИАНТ ---
             _factory = new WebApplicationFactory<GuessWord.Api.Program>();
             _client = new RestClient(_factory.CreateClient());
 
-            // чистим всех тестовых пользователей до теста
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser1}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser2}"));
@@ -43,10 +30,6 @@ namespace WordGameTests
         [TearDown]
         public async Task TearDown()
         {
-            // --- СТАРЫЙ ВАРИАНТ ---
-            // _client.Dispose();
-
-            // --- НОВЫЙ ВАРИАНТ ---
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser1}"));
             await _client.DeleteAsync(new RestRequest($"/user?user={TestUser2}"));
@@ -55,7 +38,6 @@ namespace WordGameTests
             _factory.Dispose();
         }
 
-        // --- Тест 1: проверяем эндпоинт /start ---
         [Test]
         public async Task StartGame_ReturnsSessionId()
         {
@@ -70,7 +52,6 @@ namespace WordGameTests
             Assert.That(response.Content, Does.Contain("ID сессии"));
         }
 
-        // --- Тест 2: проверяем эндпоинт /guess ---
         [Test]
         public async Task GuessLetter_ReturnsResult()
         {
@@ -91,7 +72,6 @@ namespace WordGameTests
             Assert.That(guessResponse.Content, Does.Contain("Буква").Or.Contain("Игра уже завершена"));
         }
 
-        // --- Тест 3: проверяем эндпоинт /statistics ---
         [Test]
         public async Task Statistics_ReturnsList()
         {
@@ -108,7 +88,6 @@ namespace WordGameTests
             Assert.That(statsResponse.Content, Does.Contain("Игра"));
         }
 
-        // --- Тест 4: удаление только одного пользователя из двух ---
         [Test]
         public async Task DeleteUser_RemovesOnlySpecifiedUser()
         {
@@ -131,8 +110,7 @@ namespace WordGameTests
             Assert.That(statsAfter.Content, Does.Contain(TestUser2));
         }
 
-        // --- Вспомогательный метод ---
-        private long ExtractId(string? content)
+    private long ExtractId(string? content)
         {
             if (string.IsNullOrEmpty(content))
                 throw new InvalidOperationException("Ответ пустой, ID не найден");
